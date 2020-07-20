@@ -1,3 +1,7 @@
+import camelcaseKeys from 'camelcase-keys';
+import { User } from 'features/users/user.model';
+import { Team } from 'features/teams/team.model';
+
 const teamsEndPoint = 'https://jsonplaceholder.typicode.com/posts';
 const usersEndPoint = 'https://jsonplaceholder.typicode.com/posts';
 
@@ -6,8 +10,8 @@ const fetchRessource = async (ressourceEndPoint: string) => {
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return response.json();
+    return camelcaseKeys(response.json());
 }
 
-export const fetchTeams = fetchRessource(teamsEndPoint);
-export const fetchUsers = fetchRessource(usersEndPoint);
+export const fetchTeams: () => Promise<[Team]> = () => fetchRessource(teamsEndPoint);
+export const fetchUsers: () => Promise<[User]> = () => fetchRessource(usersEndPoint);

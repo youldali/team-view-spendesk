@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from 'routes/common/Header';
 import TeamsList from 'routes/teams/TeamsList';
-import UsersList from 'routes/users/UsersList';
+import ApprovalScheme from 'routes/approvalScheme/ApprovalScheme';
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
                         <TeamsList />
                     </Route>
                     <Route path="/team/:teamId">
-                        <UsersList />
+                        <ApprovalScheme />
                     </Route>
                     <Route path="*">
                         <Redirect to="/" />

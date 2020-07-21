@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Table, { Column } from 'routes/common/Table'
 import { useSelector, useDispatch } from 'react-redux';
+import { fetchTeamsThunk, selectTeamById, selectTeamsLoadingStatus } from 'features/teams/teams.slice'
+import { fetchUsersThunk, selectUsersLoadingStatus, selectUserEntities } from 'features/users/users.slice'
 import { selectApprovalSchemeByTeamId } from 'features/approvalSchemes/approvalScheme.slice'
 import { ApprovalScheme, ApprovalStep } from 'features/approvalSchemes/approvalScheme.model'
 import { User } from 'features/users/user.model'
-import { selectUserEntities } from 'features/users/users.slice'
 import { useParams } from "react-router-dom";
 import { Dictionary } from '@reduxjs/toolkit'
 import { RootState } from 'store';
+import { LoadingState } from 'features/asyncSlice.util'
 
 interface ApprovalStepViewData {
     id: number,
@@ -80,6 +82,8 @@ const prepareData = (approvalStepViewData: ApprovalStepViewData): RowData => (
 
 
 export default () => {
+    const dispatch = useDispatch()
+
     const { teamId } = useParams();
     const usersEntities = useSelector(selectUserEntities);
     const approvalScheme = useSelector((state: RootState) => selectApprovalSchemeByTeamId(state, teamId));
@@ -88,10 +92,35 @@ export default () => {
     const approvalStepsViewData = approvalStepToApprovalStepViewData(usersEntities)(approvalSteps);
     const rows = approvalStepsViewData.map(prepareData);
 
+    
+    const team = useSelector((state: RootState) => selectTeamById(state, teamId));
+    const teamsLoadingStatus = useSelector(selectTeamsLoadingStatus);
+    
+    const usersLoadingStatus = useSelector(selectUsersLoadingStatus);
+
+    useEffect(() => {
+        if(teamsLoadingStatus === LoadingState.Idle){
+            dispatch(fetchTeamsThunk());
+        }
+    }, [teamsLoadingStatus, dispatch])
+
+    useEffect(() => {
+        if(usersLoadingStatus === LoadingState.Idle){
+            dispatch(fetchUsersThunk());
+        }
+    }, [usersLoadingStatus, dispatch])
+
     return (
-        <Table
-            rows = {rows}
-            columns = {columns}
-        />
+        <section>
+            <h5>
+                {
+                    approvalScheme === undefined ? 'No approval scheme created yet' : 'Below the approval scheme defined'
+                }
+            </h5>
+            <Table
+                rows = {rows}
+                columns = {columns}
+            />
+        </section>
     )
 }

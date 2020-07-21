@@ -1,5 +1,5 @@
-import { ApprovalScheme, ApprovalStep } from './approvalScheme.model';
-import { createEntityAdapter, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { ApprovalScheme } from './approvalScheme.model';
+import { createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from 'store';
 
 const approvalSchemeAdapter = createEntityAdapter<ApprovalScheme>({

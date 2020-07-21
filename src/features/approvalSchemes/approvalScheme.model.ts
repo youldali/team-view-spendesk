@@ -21,6 +21,10 @@ export const isApproverUniqueInApprovalSteps = (approvalSteps: ApprovalStep[]): 
     return approvalSteps.length === approvalStepsWithUniqueApprovers.length;
 }
 
+export const areThresholdsPositive = (approvalSteps: ApprovalStep[]): boolean => (
+    !approvalSteps.some(approvalStep => approvalStep.threshold !== null && approvalStep.threshold <= 0)
+)
+
 export const areThresholdsNotOverlapping = (approvalSteps: ApprovalStep[]): boolean => {
     const lastIndex = approvalSteps.length - 1;
 

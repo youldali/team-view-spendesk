@@ -86,3 +86,13 @@ export const approvalSchemeOverlappingThresholdsFixture: ApprovalScheme = {
         }
     ]
 };
+
+export const approvalSchemeNegativeThreshold: ApprovalScheme = {
+    "teamId": "TEAM1",
+    "approvalSteps": [
+        {
+            approverUserId: "user1",
+            threshold: -5,
+        }
+    ]
+};

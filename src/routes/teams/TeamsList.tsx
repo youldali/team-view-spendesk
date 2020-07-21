@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import Table, { Column } from 'routes/common/Table'
-
+import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchTeamsThunk, selectAllTeams, selectTeamsLoadingStatus } from 'features/teams/teams.slice'
 import { Team } from 'features/teams/team.model'
@@ -13,14 +13,14 @@ const columns: Column[] = [
 
 interface RowData {
     id: string,
-    teamName: string,
+    teamName: React.ReactElement,
     teamMembersCount: number,
 }
 
 const prepareData = (team: Team): RowData => (
     {
         id: team.id,
-        teamName: team.name,
+        teamName: <Link to={`/team/${team.id}`}>{team.name}</Link>,
         teamMembersCount: team.users.length,
     }
 );

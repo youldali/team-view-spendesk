@@ -1,4 +1,8 @@
-//todo: refactor team / user slice
+//todo: handle failure to load in table view
+
+//assumptions:
+ - any user can be an approver
+ - a team can only have 1 approval scheme associated (0 to 1 relationship)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

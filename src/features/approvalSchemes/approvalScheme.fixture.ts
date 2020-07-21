@@ -32,3 +32,57 @@ export const approvalSchemesFixture: ApprovalScheme[] = [
         ]
     }
 ];
+
+export const approvalSchemeFixture: ApprovalScheme = {
+    "teamId": "TEAM1",
+    "approvalSteps": [
+        {
+            approverUserId: "user1",
+            threshold: 500,
+        },
+        {
+            approverUserId: "user2",
+            threshold: 1000,
+        },
+        {
+            approverUserId: "user3",
+            threshold: null,
+        }
+    ]
+};
+
+export const approvalSchemeDuplicatedApproverFixture: ApprovalScheme = {
+        "teamId": "TEAM1",
+        "approvalSteps": [
+            {
+                approverUserId: "user1",
+                threshold: 500,
+            },
+            {
+                approverUserId: "user1",
+                threshold: 1000,
+            },
+            {
+                approverUserId: "user3",
+                threshold: null,
+            }
+        ]
+};
+
+export const approvalSchemeOverlappingThresholdsFixture: ApprovalScheme = {
+    "teamId": "TEAM1",
+    "approvalSteps": [
+        {
+            approverUserId: "user1",
+            threshold: 500,
+        },
+        {
+            approverUserId: "user2",
+            threshold: 499,
+        },
+        {
+            approverUserId: "user3",
+            threshold: null,
+        }
+    ]
+};

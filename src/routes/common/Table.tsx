@@ -86,7 +86,7 @@ export default ({columns, rows}: TableProps) => {
             </Table>
             </TableContainer>
             <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
+                rowsPerPageOptions={[5, 10]}
                 component="div"
                 count={rows.length}
                 rowsPerPage={rowsPerPage}

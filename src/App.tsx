@@ -1,12 +1,12 @@
 import React from 'react';
 import Header from 'routes/common/Header';
-import Teams from 'routes/teams/Team';
+import TeamsList from 'routes/teams/TeamsList';
 
 function App() {
     return (
         <div className="App">
             <Header />
-            <Teams />
+            <TeamsList />
         </div>
     );
 }

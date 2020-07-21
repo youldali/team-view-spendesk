@@ -5,5 +5,5 @@ export type TeamId = string;
 export interface Team {
     id: TeamId,
     name: string,
-    users: [UserId],
+    users: UserId[],
 }

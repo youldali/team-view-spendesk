@@ -1,4 +1,6 @@
-export const teamsFixture = [
+import { Team } from './team.model';
+
+export const teamsFixture: Team[] = [
     {
         "id":"TEAM1",
         "name":"Marketing",

@@ -1,32 +1,34 @@
-export const usersFixture = [
+import { User } from './user.model';
+
+export const usersFixture: User[] = [
     {
         "id":"USR1",
-        "first_name":"Eugene",
-        "last_name":"Tran",
+        "firstName":"Eugene",
+        "lastName":"Tran",
         "email":"eugene.tran@spendesk.com"
     },
     {
         "id":"USR2",
-        "first_name":"Ralph",
-        "last_name":"Romero",
+        "firstName":"Ralph",
+        "lastName":"Romero",
         "email":"ralph.romero@spendesk.com"
     },
     {
         "id":"USR3",
-        "first_name":"Tiffany",
-        "last_name":"Frazier",
+        "firstName":"Tiffany",
+        "lastName":"Frazier",
         "email":"tiffany.frazier@spendesk.com"
     },
     {
         "id":"USR4",
-        "first_name":"Sandra",
-        "last_name":"Reed",
+        "firstName":"Sandra",
+        "lastName":"Reed",
         "email":"sandra.reed@spendesk.com"
     },
     {
         "id":"USR5",
-        "first_name":"Jason",
-        "last_name":"Casey",
+        "firstName":"Jason",
+        "lastName":"Casey",
         "email":"jason.casey@spendesk.com"
     }
 ]

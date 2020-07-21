@@ -2,8 +2,8 @@ import { UserId } from '../users/user.model'
 import { TeamId } from '../teams/team.model'
 
 export interface ApprovalStep {
-    userId: UserId,
-    threshold: number,
+    approverUserId: UserId,
+    threshold: number | null,
 }
 
 export interface ApprovalScheme {

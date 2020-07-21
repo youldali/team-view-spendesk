@@ -1,4 +1,4 @@
-import { User } from './user.model';
+import { User, UserId } from './user.model';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import { fetchUsers } from 'apis/team-view.api'
 import { RootState } from 'store';
@@ -36,6 +36,7 @@ export const selectUsersLoadingError = createSelector(
 export const {
     selectAll: selectAllUsers,
     selectById: selectUserById,
+    selectEntities: selectUserEntities,
 } = usersAdapter.getSelectors(selectUsersSlice);
 
 export default usersSlice.reducer;

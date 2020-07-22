@@ -6,7 +6,7 @@ import { UserId } from 'features/users/user.model'
 import { fetchTeamsThunk, selectTeamById, selectTeamsLoadingStatus } from 'features/teams/teams.slice'
 import { fetchUsersThunk, selectAllUsers, selectUsersLoadingStatus, selectUserEntities } from 'features/users/users.slice'
 import { selectApprovalSchemeByTeamId, setApprovalScheme } from 'features/approvalSchemes/approvalScheme.slice'
-import { ApprovalScheme, ApprovalStep } from 'features/approvalSchemes/approvalScheme.model'
+import { ApprovalScheme } from 'features/approvalSchemes/approvalScheme.model'
 import { 
     ApprovalSchemeDraft, 
     ApprovalStepDraft, 

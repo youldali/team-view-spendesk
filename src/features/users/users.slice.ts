@@ -1,4 +1,4 @@
-import { User, UserId } from './user.model';
+import { User } from './user.model';
 import { createAsyncThunk, createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import { fetchUsers } from 'apis/team-view.api'
 import { RootState } from 'store';

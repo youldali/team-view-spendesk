@@ -6,7 +6,7 @@ import {
     addApprovalStepToDraft,
     modifyStepThreshold,
     modifyStepApprover,
-    validateDraft,
+    getApprovalDraftValidateErrors,
     ApprovalSchemeDraftValidationErrors,
 } from './approvalSchemeDraft.model';
 import { 
@@ -137,9 +137,9 @@ describe('modifyStepApprover', () => {
     });
 });
 
-describe('validateDraft', () => {
+describe('getApprovalDraftValidateErrors', () => {
     it('returns a list of error when validating the draft', () => {
-        const validationErrors = validateDraft(approvalSchemeMultiErrorsFixture);
+        const validationErrors = getApprovalDraftValidateErrors(approvalSchemeMultiErrorsFixture);
         expect(validationErrors).toEqual([
             ApprovalSchemeDraftValidationErrors.ApproverUndefined,
             ApprovalSchemeDraftValidationErrors.ThresholdNotPositiveNumber,
@@ -148,7 +148,7 @@ describe('validateDraft', () => {
     });
 
     it('returns an empty list of error if the draft is valid', () => {
-        const validationErrors = validateDraft(validApprovalSchemeFixture);
+        const validationErrors = getApprovalDraftValidateErrors(validApprovalSchemeFixture);
         expect(validationErrors).toEqual([]);
     });
 });

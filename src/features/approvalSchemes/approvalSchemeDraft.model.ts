@@ -78,7 +78,7 @@ const validationToErrorMap = {
     [ApprovalSchemeDraftValidationErrors.ThresholdOverlapping]: areThresholdsNotOverlapping,
 }
 
-export const validateDraft = (approvalScheme: ApprovalSchemeDraft): ApprovalSchemeDraftValidationErrors[] => (
+export const getApprovalDraftValidateErrors = (approvalScheme: ApprovalSchemeDraft): ApprovalSchemeDraftValidationErrors[] => (
     Object.entries(validationToErrorMap).reduce(
         (acc, [validationErrorKey, validateFunction]): ApprovalSchemeDraftValidationErrors[] => {
             if (!validateFunction(approvalScheme)) {

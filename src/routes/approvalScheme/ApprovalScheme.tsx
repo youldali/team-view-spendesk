@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { UserId } from 'features/users/user.model'
 import { fetchTeamsThunk, selectTeamById, selectTeamsLoadingStatus } from 'features/teams/teams.slice'
 import { fetchUsersThunk, selectAllUsers, selectUsersLoadingStatus, selectUserEntities } from 'features/users/users.slice'
-import { selectApprovalSchemeByTeamId } from 'features/approvalSchemes/approvalScheme.slice'
+import { selectApprovalSchemeByTeamId, setApprovalScheme } from 'features/approvalSchemes/approvalScheme.slice'
 import { ApprovalScheme, ApprovalStep } from 'features/approvalSchemes/approvalScheme.model'
 import { 
     ApprovalSchemeDraft, 
@@ -14,6 +14,8 @@ import {
     getEmptyDraft, 
     modifyStepThreshold,
     modifyStepApprover,
+    getApprovalDraftValidateErrors,
+    ApprovalSchemeDraftValidationErrors,
 } from 'features/approvalSchemes/approvalSchemeDraft.model'
 import { User } from 'features/users/user.model'
 import { useParams } from "react-router-dom";
@@ -26,6 +28,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import { Link } from "react-router-dom";
 
 interface ApprovalStepViewData {
     id: number,
@@ -123,17 +126,29 @@ const prepareData =
 );
 
 function useEditApprovalScheme(approvalScheme: ApprovalSchemeDraft) {
+    const dispatch = useDispatch()
     const [draft, setDraft] = useState(approvalScheme);
+    const [draftErrors, setDraftErrors] = useState([] as ApprovalSchemeDraftValidationErrors[]);
 
     const addStepToDraft = () => setDraft(addApprovalStepToDraft(draft));
     const modifyThreshold = (threshold: number, stepIndex: number) => setDraft(modifyStepThreshold(threshold)(stepIndex)(draft));
     const modifyApprover = (approverId: string, stepIndex: number) => setDraft(modifyStepApprover(approverId)(stepIndex)(draft));
+    const validateDraft = () => {
+        const errors = getApprovalDraftValidateErrors(draft);
+        if(errors.length === 0){
+            dispatch(setApprovalScheme(draft as ApprovalScheme))
+        }
+        setDraftErrors(errors)
+    }
+
     return {
         draft,
+        draftErrors,
         draftActions: {
             addStepToDraft,
             modifyThreshold,
             modifyApprover,
+            validateDraft,
         }
     };
 }
@@ -194,36 +209,44 @@ export default function ApprovalStepEditView() {
         }
     }, [usersLoadingStatus, dispatch])
 
-    const {draft, draftActions} = useEditApprovalScheme(approvalScheme);
+    const {draft, draftErrors, draftActions} = useEditApprovalScheme(approvalScheme);
     
     const approvalStepsViewData = approvalStepsToApprovalStepViewData(usersEntities)(draft.approvalSteps);
     const rows = approvalStepsViewData.map(prepareData(usersList)(draftActions));
 
     return (
         <section>
-            <h5>
-                {
-                    approvalScheme === undefined ? 'No approval scheme created yet' : 'Below the approval scheme defined'
-                }
-            </h5>
-            <Button 
-                variant="contained" 
-                color="primary"
-                onClick={draftActions.addStepToDraft}
-            >
-                Add step
-            </Button>
-            <Table
-                rows = {rows}
-                columns = {columns}
-            />
-            <Button 
-                variant="contained" 
-                color="primary"
-                onClick={draftActions.validateDraft}
-            >
-                Add step
-            </Button>
+            <section>
+                <Link to={`/`}>Back to teams list</Link>
+            </section>
+            <section>
+                <h5>
+                    {
+                        approvalScheme === undefined ? 'No approval scheme created yet' : 'Below the approval scheme defined'
+                    }
+                </h5>
+                <Button 
+                    variant="contained" 
+                    color="primary"
+                    onClick={draftActions.addStepToDraft}
+                >
+                    Add step
+                </Button>
+                <Table
+                    rows = {rows}
+                    columns = {columns}
+                />
+                <Button 
+                    variant="contained" 
+                    color="primary"
+                    onClick={draftActions.validateDraft}
+                >
+                    Validate the approval scheme
+                </Button>
+                <div>
+                    { draftErrors.map(error => <p>{error}</p>) }
+                </div>
+            </section>
         </section>
     )
 }

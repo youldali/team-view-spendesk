@@ -50,6 +50,7 @@ Stack:
  - Ability to relaunch the request if a resource fails to load
  - Add a user view
  - Split the *routes/approvalScheme/ApprovalScheme.tsx* file
+ - Add lazy loading by route
 
 ### Testing
 

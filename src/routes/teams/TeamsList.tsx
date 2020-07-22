@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchTeamsThunk, selectAllTeams, selectTeamsLoadingStatus } from 'features/teams/teams.slice'
 import { Team } from 'features/teams/team.model'
 import { LoadingState } from 'features/asyncSlice.util'
+import Loading from '../common/Loading'
 
 const columns: Column[] = [
     { id: 'teamName', label: 'Team name', minWidth: 170 },
@@ -39,9 +40,13 @@ export default () => {
     const rows = teams.map(prepareData);
 
     return (
-        <Table
-            columns = {columns}
-            rows = {rows}
-        />
+        <Loading
+            loadingStates = {[teamsLoadingStatus]}
+        >
+            <Table
+                columns = {columns}
+                rows = {rows}
+            />
+        </Loading>
     )
 }

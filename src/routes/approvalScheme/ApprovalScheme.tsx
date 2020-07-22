@@ -29,6 +29,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { Link } from "react-router-dom";
+import Loading from '../common/Loading'
 
 interface ApprovalStepViewData {
     id: number,
@@ -195,7 +196,6 @@ export default function ApprovalStepEditView() {
 
     const maybeApprovalScheme = useSelector((state: RootState) => selectApprovalSchemeByTeamId(state, teamId));
     const approvalScheme = maybeApprovalScheme ?? getEmptyDraft(teamId);
-    const approvalSteps = approvalScheme.approvalSteps;
     
     useEffect(() => {
         if(teamsLoadingStatus === LoadingState.Idle){
@@ -214,39 +214,59 @@ export default function ApprovalStepEditView() {
     const approvalStepsViewData = approvalStepsToApprovalStepViewData(usersEntities)(draft.approvalSteps);
     const rows = approvalStepsViewData.map(prepareData(usersList)(draftActions));
 
+    if(team === undefined && teamsLoadingStatus === LoadingState.Succeeded) {
+        return (
+            <section>
+                <section>
+                    <Link to={`/`}>Back to teams list</Link>
+                </section>
+                <h5>No team with this Id exist</h5>
+            </section>
+        );
+    }
     return (
-        <section>
+        <Loading
+            loadingStates = {[teamsLoadingStatus, usersLoadingStatus]}
+        >
             <section>
-                <Link to={`/`}>Back to teams list</Link>
-            </section>
-            <section>
-                <h5>
+                <section>
+                    <Link to={`/`}>Back to teams list</Link>
+                </section>
+                <section>
+                    <h5>
+                        {
+                            approvalScheme === undefined ? 'No approval scheme created yet' : 'Below the approval scheme defined'
+                        }
+                        for {team?.name}
+                    </h5>
+                    <Button 
+                        variant="contained" 
+                        color="primary"
+                        onClick={draftActions.addStepToDraft}
+                    >
+                        Add approval step
+                    </Button>
+                    <Table
+                        rows = {rows}
+                        columns = {columns}
+                    />
+                    <Button 
+                        variant="contained" 
+                        color="primary"
+                        onClick={draftActions.validateDraft}
+                    >
+                        Validate the approval scheme
+                    </Button>
+
                     {
-                        approvalScheme === undefined ? 'No approval scheme created yet' : 'Below the approval scheme defined'
+                        draftErrors.length > 0 &&
+                        <div>
+                            <h5>Approval Scheme invalid: </h5>
+                            { draftErrors.map(error => <p>{error}</p>) }
+                        </div>
                     }
-                </h5>
-                <Button 
-                    variant="contained" 
-                    color="primary"
-                    onClick={draftActions.addStepToDraft}
-                >
-                    Add step
-                </Button>
-                <Table
-                    rows = {rows}
-                    columns = {columns}
-                />
-                <Button 
-                    variant="contained" 
-                    color="primary"
-                    onClick={draftActions.validateDraft}
-                >
-                    Validate the approval scheme
-                </Button>
-                <div>
-                    { draftErrors.map(error => <p>{error}</p>) }
-                </div>
+                </section>
             </section>
-        </section>
+        </Loading>
     )
 }

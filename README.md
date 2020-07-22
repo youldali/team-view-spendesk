@@ -31,12 +31,12 @@ Stack:
  - *apis* folder contains functions used to reach the outside world, in this case the logic to perform API calls for the teams and users
  - *utils* folder contains generic util functions
 
-### What is use case in handled
+### What use case is handled
 
  - Teams list table
  - Abitility to create / update an approval scheme for a team 
  - Manages the following errors:
-    - errors when modifying an approval scheme (for example: negative number / undefined approver...)
+    - errors when modifying an approval scheme (for example: negative number / undefined approver / overlapping thresholds / duplicated approver)
     - handles the case when the user modifies the url manually and land on a non existing team
     - handle the case when resources have failed to load (for example: network error)
 
@@ -51,6 +51,7 @@ Stack:
  - Add a user view
  - Split the *routes/approvalScheme/ApprovalScheme.tsx* file
  - Add lazy loading by route
+ - Put all the UI text in a specific file
 
 ### Testing
 

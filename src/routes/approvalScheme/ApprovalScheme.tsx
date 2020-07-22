@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Table, { Column } from 'routes/common/Table'
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchTeamsThunk, selectTeamById, selectTeamsLoadingStatus } from 'features/teams/teams.slice'
@@ -80,6 +80,55 @@ const prepareData = (approvalStepViewData: ApprovalStepViewData): RowData => (
     }
 );
 
+//-------------------------------
+const addApprovalStep = (approvalSteps: ApprovalSteps[]): ApprovalSteps[] => {
+    const numberOfSteps = approvalSteps.length;
+    const lastStepIndex = approvalSteps.length - 1;
+    const approverUserId = null;
+    const newThreshold =    numberOfSteps === 0 ? null :
+                            numberOfSteps === 1 ? 0 :
+                            approvalSteps[numberOfSteps - 2].threshold
+    const addApprovalStepToEmptySteps = () => (
+        [{
+            approverUserId,
+            threshold: null,
+        }]
+    );
+
+    const addApprovalStepToSingleStep = () => (
+        [
+            {
+                approverUserId,
+                threshold: 0,
+            },
+            ...approvalSteps
+        ]
+    );
+
+    const addApprovalStepMultipleSteps = () => (
+        [
+            ...take(lastStepIndex - 1, approvalSteps),
+            {
+                approverUserId,
+                threshold: approvalSteps[numberOfSteps - 2].threshold,
+            },
+            approvalSteps[lastStepIndex],
+        ]
+    );
+
+    return (
+            numberOfSteps === 0 ? addApprovalStepToEmptySteps() :
+            numberOfSteps === 1 ? addApprovalStepToSingleStep() :
+            addApprovalStepMultipleSteps()
+    );
+}
+
+function useEditApprovalScheme(approvalScheme: ApprovalScheme) {
+    const approvalSteps = approvalScheme.approvalSteps;
+    const [draft, setDraft] = useState(approvalSteps);
+  
+    return isOnline;
+  }
 
 export default () => {
     const dispatch = useDispatch()

@@ -60,7 +60,7 @@ export const areThresholdsNotOverlapping = ({ approvalSteps }: ApprovalSchemeDra
             const previousThreshold = approvalSteps[i - 1].threshold;
             return (
                 currentThreshold === null || previousThreshold === null ? false :
-                currentThreshold < previousThreshold ? false : 
+                currentThreshold <= previousThreshold ? false : 
                 true
             );
         }

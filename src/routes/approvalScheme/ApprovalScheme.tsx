@@ -235,9 +235,9 @@ export default function ApprovalStepEditView() {
                 <section>
                     <h5>
                         {
-                            approvalScheme === undefined ? 'No approval scheme created yet' : 'Below the approval scheme defined'
+                            maybeApprovalScheme === undefined ? 'No approval scheme created yet' : 'Below the approval scheme defined'
                         }
-                        for {team?.name}
+                        {` for ${team?.name}`}
                     </h5>
                     <Button 
                         variant="contained" 

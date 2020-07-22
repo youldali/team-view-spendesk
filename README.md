@@ -1,50 +1,57 @@
-//todo: handle failure to load in table view
+## Project URL:
+https://youldali.github.io/team-view-spendesk/
 
-//assumptions:
+## Assumptions
+
  - any user can be an approver
  - a team can only have 1 approval scheme associated (0 to 1 relationship)
 
+### How to run it
+
+ - git clone https://github.com/youldali/team-view-spendesk.git
+ - npm install => install the app
+ - npm run start => to launch the local web server
+ - npm run test => runs the UT
+
+### Tech stack
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Stack:
+ - Typescript
+ - React / Redux (toolkit) / React-Router
+ - Jest
+ - Ramda
+ - Material UI
 
-## Available Scripts
+### Structure description
 
-In the project directory, you can run:
+ - *src* contains the source code
+ - *features* folder contains all the application logic, along with the redux slices and data models
+ - *routes* folder contains all the components and everything related to the UI
+ - *apis* folder contains functions used to reach the outside world, in this case the logic to perform API calls for the teams and users
+ - *utils* folder contains generic util functions
 
-### `npm start`
+### What is use case in handled
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+ - Teams list table
+ - Abitility to create / update an approval scheme for a team 
+ - Manages the following errors:
+    - errors when modifying an approval scheme (for example: negative number / undefined approver...)
+    - handles the case when the user modifies the url manually and land on a non existing team
+    - handle the case when resources have failed to load (for example: network error)
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+### What is missing
 
-### `npm test`
+ -  Ability to delete a step in an approval scheme:
+    I would add a function in the model that receives the step ID to delete, and returns a new array without the index, readapting the others steps thresholds if necessary.
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### What would be nice
 
-### `npm run build`
+ - Ability to relaunch the request if a resource fails to load
+ - Add a user view
+ - Split the *routes/approvalScheme/ApprovalScheme.tsx* file
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Testing
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+ - The app logic is covered with unit test (features folder)
+ - Due to lack of time, the app view is not covered

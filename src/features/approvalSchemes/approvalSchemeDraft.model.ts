@@ -12,6 +12,12 @@ export interface ApprovalSchemeDraft {
     approvalSteps: ApprovalStepDraft[],
 }
 
+export enum ApprovalSchemeDraftValidationErrors {
+    ApproverNotUnique = "ApproverNotUnique",
+    ApproverUndefined = "ApproverUndefined",
+    ThresholdNotPositiveNumber = "ThresholdNotPositiveNumber",
+    ThresholdOverlapping = "ThresholdOverlapping",
+}
 export const getEmptyDraft = (teamId: TeamId): ApprovalSchemeDraft => (
     {
         teamId,
@@ -33,7 +39,10 @@ export const areApproversDefined = ({ approvalSteps }: ApprovalSchemeDraft): boo
 )
 
 export const areThresholdsPositive = ({ approvalSteps }: ApprovalSchemeDraft): boolean => (
-    !approvalSteps.some(approvalStep => approvalStep.threshold !== null && approvalStep.threshold <= 0)
+    !approvalSteps.some(approvalStep => 
+        approvalStep.threshold !== null && 
+        (typeof approvalStep.threshold !== 'number' || approvalStep.threshold <= 0)
+    )
 )
 
 export const areThresholdsNotOverlapping = ({ approvalSteps }: ApprovalSchemeDraft): boolean => {
@@ -61,6 +70,24 @@ export const areThresholdsNotOverlapping = ({ approvalSteps }: ApprovalSchemeDra
 
     return checkLastThresholdIsNull() && checkThresholdsValues();
 }
+
+const validationToErrorMap = {
+    [ApprovalSchemeDraftValidationErrors.ApproverNotUnique]: isApproverUniqueInApprovalSteps,
+    [ApprovalSchemeDraftValidationErrors.ApproverUndefined]: areApproversDefined,
+    [ApprovalSchemeDraftValidationErrors.ThresholdNotPositiveNumber]: areThresholdsPositive,
+    [ApprovalSchemeDraftValidationErrors.ThresholdOverlapping]: areThresholdsNotOverlapping,
+}
+
+export const validateDraft = (approvalScheme: ApprovalSchemeDraft): ApprovalSchemeDraftValidationErrors[] => (
+    Object.entries(validationToErrorMap).reduce(
+        (acc, [validationErrorKey, validateFunction]): ApprovalSchemeDraftValidationErrors[] => {
+            if (!validateFunction(approvalScheme)) {
+                acc.push(validationErrorKey as ApprovalSchemeDraftValidationErrors)  
+            }
+            return acc;
+        }
+    , [] as ApprovalSchemeDraftValidationErrors[])
+)
 
 export const addApprovalStepToDraft = (approvalScheme: ApprovalSchemeDraft): ApprovalSchemeDraft => {
     const { approvalSteps } = approvalScheme;

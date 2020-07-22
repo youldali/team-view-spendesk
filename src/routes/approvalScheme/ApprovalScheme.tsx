@@ -126,8 +126,8 @@ function useEditApprovalScheme(approvalScheme: ApprovalSchemeDraft) {
     const [draft, setDraft] = useState(approvalScheme);
 
     const addStepToDraft = () => setDraft(addApprovalStepToDraft(draft));
-    const modifyThreshold = (threshold: number, stepIndex: number) => setDraft(modifyStepThreshold(threshold)(stepIndex)(draft))
-    const modifyApprover = (approverId: string, stepIndex: number) => setDraft(modifyStepApprover(approverId)(stepIndex)(draft))
+    const modifyThreshold = (threshold: number, stepIndex: number) => setDraft(modifyStepThreshold(threshold)(stepIndex)(draft));
+    const modifyApprover = (approverId: string, stepIndex: number) => setDraft(modifyStepApprover(approverId)(stepIndex)(draft));
     return {
         draft,
         draftActions: {
@@ -217,6 +217,13 @@ export default function ApprovalStepEditView() {
                 rows = {rows}
                 columns = {columns}
             />
+            <Button 
+                variant="contained" 
+                color="primary"
+                onClick={draftActions.validateDraft}
+            >
+                Add step
+            </Button>
         </section>
     )
 }

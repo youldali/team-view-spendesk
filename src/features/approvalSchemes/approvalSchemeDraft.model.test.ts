@@ -6,6 +6,8 @@ import {
     addApprovalStepToDraft,
     modifyStepThreshold,
     modifyStepApprover,
+    validateDraft,
+    ApprovalSchemeDraftValidationErrors,
 } from './approvalSchemeDraft.model';
 import { 
     validApprovalSchemeFixture, 
@@ -16,6 +18,7 @@ import {
     approvalSchemeEmptyDraftFixture,
     approvalSchemeSingleStepDraftFixture,
     approvalSchemeTwoStepDraftFixture,
+    approvalSchemeMultiErrorsFixture,
 } from './approvalSchemeDraft.fixture';
 import { clone } from 'ramda';
 
@@ -131,5 +134,21 @@ describe('modifyStepApprover', () => {
         const validApprovalSchemeFixtureClone = clone(validApprovalSchemeFixture);
         const newApprovalScheme = modifyStepApprover(newApproverId)(0)(validApprovalSchemeFixtureClone);
         expect(newApprovalScheme.approvalSteps[0].approverUserId).toBe(newApproverId);
+    });
+});
+
+describe('validateDraft', () => {
+    it('returns a list of error when validating the draft', () => {
+        const validationErrors = validateDraft(approvalSchemeMultiErrorsFixture);
+        expect(validationErrors).toEqual([
+            ApprovalSchemeDraftValidationErrors.ApproverUndefined,
+            ApprovalSchemeDraftValidationErrors.ThresholdNotPositiveNumber,
+            ApprovalSchemeDraftValidationErrors.ThresholdOverlapping,
+        ]);
+    });
+
+    it('returns an empty list of error if the draft is valid', () => {
+        const validationErrors = validateDraft(validApprovalSchemeFixture);
+        expect(validationErrors).toEqual([]);
     });
 });

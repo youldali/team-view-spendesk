@@ -82,6 +82,16 @@ export const approvalSchemeNegativeThresholdFixture: ApprovalSchemeDraft = {
     ]
 };
 
+export const approvalSchemeMultiErrorsFixture: ApprovalSchemeDraft = {
+    "teamId": "TEAM1",
+    "approvalSteps": [
+        {
+            approverUserId: null,
+            threshold: -5,
+        }
+    ]
+};
+
 export const approvalSchemeEmptyDraftFixture: ApprovalSchemeDraft = {
     "teamId": "TEAM1",
     "approvalSteps": [

@@ -125,3 +125,21 @@ export const modifyStepThreshold =
         approvalSteps,
     }
 }
+
+export const modifyStepApprover = 
+(approverId: UserId) => 
+(stepIndex: number) =>
+(approvalScheme: ApprovalSchemeDraft): ApprovalSchemeDraft => {
+    const { approvalSteps } = approvalScheme;
+    const lastStepIndex = approvalSteps.length - 1;
+
+    if(stepIndex > lastStepIndex) {
+        return approvalScheme;
+    }
+
+    approvalSteps[stepIndex].approverUserId = approverId;
+    return {
+        ...approvalScheme,
+        approvalSteps,
+    }
+}

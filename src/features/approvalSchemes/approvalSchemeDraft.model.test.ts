@@ -5,6 +5,7 @@ import {
     areThresholdsPositive,
     addApprovalStepToDraft,
     modifyStepThreshold,
+    modifyStepApprover,
 } from './approvalSchemeDraft.model';
 import { 
     validApprovalSchemeFixture, 
@@ -111,7 +112,6 @@ describe('addApprovalStepToDraft', () => {
                 approvalSteps[1],
             ]
         };
-        console.log(newDraft);
         expect(newDraft).toEqual(expectedNewDraft);
     });
 });
@@ -122,5 +122,14 @@ describe('modifyStepThreshold', () => {
         const secondToLastStepIndex = validApprovalSchemeFixtureClone.approvalSteps.length - 2;
         const newApprovalScheme = modifyStepThreshold(5000)(secondToLastStepIndex)(validApprovalSchemeFixtureClone);
         expect(newApprovalScheme.approvalSteps[secondToLastStepIndex].threshold).toBe(5000);
+    });
+});
+
+describe('modifyStepApprover', () => {
+    it('returns a new draft with the step approver updated', () => {
+        const newApproverId = "USR100";
+        const validApprovalSchemeFixtureClone = clone(validApprovalSchemeFixture);
+        const newApprovalScheme = modifyStepApprover(newApproverId)(0)(validApprovalSchemeFixtureClone);
+        expect(newApprovalScheme.approvalSteps[0].approverUserId).toBe(newApproverId);
     });
 });

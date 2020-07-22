@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { nanoid } from '@reduxjs/toolkit'
 import Table, { Column } from 'routes/common/Table'
 import { useSelector, useDispatch } from 'react-redux';
+import { UserId } from 'features/users/user.model'
 import { fetchTeamsThunk, selectTeamById, selectTeamsLoadingStatus } from 'features/teams/teams.slice'
-import { fetchUsersThunk, selectUsersLoadingStatus, selectUserEntities } from 'features/users/users.slice'
+import { fetchUsersThunk, selectAllUsers, selectUsersLoadingStatus, selectUserEntities } from 'features/users/users.slice'
 import { selectApprovalSchemeByTeamId } from 'features/approvalSchemes/approvalScheme.slice'
 import { ApprovalScheme, ApprovalStep } from 'features/approvalSchemes/approvalScheme.model'
 import { 
@@ -10,7 +12,8 @@ import {
     ApprovalStepDraft, 
     addApprovalStepToDraft, 
     getEmptyDraft, 
-    modifyStepThreshold 
+    modifyStepThreshold,
+    modifyStepApprover,
 } from 'features/approvalSchemes/approvalSchemeDraft.model'
 import { User } from 'features/users/user.model'
 import { useParams } from "react-router-dom";
@@ -19,9 +22,14 @@ import { RootState } from 'store';
 import { LoadingState } from 'features/asyncSlice.util'
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 interface ApprovalStepViewData {
     id: number,
+    approverId: UserId | null,
     approverName: string,
     approveFrom: number,
     approveTo: number | null
@@ -35,14 +43,15 @@ const columns: Column[] = [
 
 interface RowData {
     id: string,
-    approverName: string,
+    approverName: string | React.ReactElement,
     approveFrom: string | React.ReactElement,
     approveTo: string | React.ReactElement,
 }
 
 interface DraftActions {
     addStepToDraft: () => void,
-    modifyThreshold: (threshold: number, stepIndex: number) => void
+    modifyThreshold: (threshold: number, stepIndex: number) => void,
+    modifyApprover: (approverId: UserId, stepIndex: number) => void,
 }
 
 const approvalStepsToApprovalStepViewData = 
@@ -62,6 +71,7 @@ const approvalStepsToApprovalStepViewData =
         const approvalStepViewDataForFirstElement = () => (
             {
                 id: index,
+                approverId: approvalStep.approverUserId,
                 approverName,
                 approveFrom: 0,
                 approveTo: approvalStep.threshold
@@ -71,6 +81,7 @@ const approvalStepsToApprovalStepViewData =
         const approvalStepViewDataForOtherElements = () => (
             {
                 id: index,
+                approverId: approvalStep.approverUserId,
                 approverName,
                 approveFrom: approvalSteps[index - 1].threshold as number,
                 approveTo: approvalStep.threshold
@@ -87,11 +98,15 @@ const approvalStepsToApprovalStepViewData =
 };
 
 const prepareData = 
+(usersList: User[]) =>
 (draftActions: DraftActions) => 
 (approvalStepViewData: ApprovalStepViewData): RowData => (
     {
         id: approvalStepViewData.id.toString(),
-        approverName: approvalStepViewData.approverName,
+        approverName: getUserSelect
+                        (usersList)
+                        ((event: any) => draftActions.modifyApprover(event.target.value, approvalStepViewData.id))
+                        (approvalStepViewData.approverId),
         approveFrom: 'From: ' + approvalStepViewData.approveFrom,
         approveTo:  approvalStepViewData.approveTo === null ? ' - ' 
                     :   <> 
@@ -108,18 +123,48 @@ const prepareData =
 );
 
 function useEditApprovalScheme(approvalScheme: ApprovalSchemeDraft) {
-    // const approvalSteps = approvalScheme.approvalSteps;
     const [draft, setDraft] = useState(approvalScheme);
 
     const addStepToDraft = () => setDraft(addApprovalStepToDraft(draft));
     const modifyThreshold = (threshold: number, stepIndex: number) => setDraft(modifyStepThreshold(threshold)(stepIndex)(draft))
+    const modifyApprover = (approverId: string, stepIndex: number) => setDraft(modifyStepApprover(approverId)(stepIndex)(draft))
     return {
         draft,
         draftActions: {
             addStepToDraft,
             modifyThreshold,
+            modifyApprover,
         }
     };
+}
+
+const getUserSelect = 
+(usersList: User[]) => 
+(onChange: any) => 
+(value: string | null) => {
+    const selectId = nanoid();
+    return (
+        <FormControl>
+            <InputLabel id = {selectId}>Users</InputLabel>
+            <Select
+                value = {value ?? ''}
+                labelId = {selectId}
+                id = {selectId}
+                onChange = {onChange}
+            >
+                {usersList.map(
+                    (user) => (
+                        <MenuItem 
+                            value = {user.id}
+                            key = {user.id}
+                        >
+                            {`${user.firstName} ${user.lastName}`}
+                        </MenuItem>
+                    ) 
+                )}
+            </Select>
+        </FormControl>
+    );
 }
 
 export default function ApprovalStepEditView() {
@@ -130,6 +175,7 @@ export default function ApprovalStepEditView() {
     const teamsLoadingStatus = useSelector(selectTeamsLoadingStatus);
 
     const usersEntities = useSelector(selectUserEntities);
+    const usersList = useSelector(selectAllUsers);
     const usersLoadingStatus = useSelector(selectUsersLoadingStatus);
 
     const maybeApprovalScheme = useSelector((state: RootState) => selectApprovalSchemeByTeamId(state, teamId));
@@ -151,7 +197,7 @@ export default function ApprovalStepEditView() {
     const {draft, draftActions} = useEditApprovalScheme(approvalScheme);
     
     const approvalStepsViewData = approvalStepsToApprovalStepViewData(usersEntities)(draft.approvalSteps);
-    const rows = approvalStepsViewData.map(prepareData(draftActions));
+    const rows = approvalStepsViewData.map(prepareData(usersList)(draftActions));
 
     return (
         <section>

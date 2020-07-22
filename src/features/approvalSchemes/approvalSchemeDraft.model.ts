@@ -12,6 +12,13 @@ export interface ApprovalSchemeDraft {
     approvalSteps: ApprovalStepDraft[],
 }
 
+export const getEmptyDraft = (teamId: TeamId): ApprovalSchemeDraft => (
+    {
+        teamId,
+        approvalSteps: [],
+    }
+);
+
 export const isApproverUniqueInApprovalSteps = ({ approvalSteps }: ApprovalSchemeDraft): boolean => {
     const approvalStepsWithUniqueApprovers = uniqBy(
         (approvalStep: ApprovalStepDraft) => approvalStep.approverUserId, 
@@ -98,5 +105,23 @@ export const addApprovalStepToDraft = (approvalScheme: ApprovalSchemeDraft): App
     return {
         ...approvalScheme,
         approvalSteps: newApprovalStepsDraft,
+    }
+}
+
+export const modifyStepThreshold = 
+(threshold: number) => 
+(stepIndex: number) =>
+(approvalScheme: ApprovalSchemeDraft): ApprovalSchemeDraft => {
+    const { approvalSteps } = approvalScheme;
+    const lastStepIndex = approvalSteps.length - 1;
+
+    if(stepIndex >= lastStepIndex) {
+        return approvalScheme;
+    }
+
+    approvalSteps[stepIndex].threshold = threshold;
+    return {
+        ...approvalScheme,
+        approvalSteps,
     }
 }

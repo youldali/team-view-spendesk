@@ -4,6 +4,7 @@ import {
     areThresholdsNotOverlapping, 
     areThresholdsPositive,
     addApprovalStepToDraft,
+    modifyStepThreshold,
 } from './approvalSchemeDraft.model';
 import { 
     validApprovalSchemeFixture, 
@@ -15,6 +16,8 @@ import {
     approvalSchemeSingleStepDraftFixture,
     approvalSchemeTwoStepDraftFixture,
 } from './approvalSchemeDraft.fixture';
+import { clone } from 'ramda';
+
 
 describe('isApproverUniqueInApprovalSteps', () => {
     it('returns false if an approver is present more than once', () => {
@@ -110,5 +113,14 @@ describe('addApprovalStepToDraft', () => {
         };
         console.log(newDraft);
         expect(newDraft).toEqual(expectedNewDraft);
+    });
+});
+
+describe('modifyStepThreshold', () => {
+    it('returns a new draft with the step threshold updated', () => {
+        const validApprovalSchemeFixtureClone = clone(validApprovalSchemeFixture);
+        const secondToLastStepIndex = validApprovalSchemeFixtureClone.approvalSteps.length - 2;
+        const newApprovalScheme = modifyStepThreshold(5000)(secondToLastStepIndex)(validApprovalSchemeFixtureClone);
+        expect(newApprovalScheme.approvalSteps[secondToLastStepIndex].threshold).toBe(5000);
     });
 });

@@ -5,11 +5,20 @@ import { fetchTeamsThunk, selectTeamById, selectTeamsLoadingStatus } from 'featu
 import { fetchUsersThunk, selectUsersLoadingStatus, selectUserEntities } from 'features/users/users.slice'
 import { selectApprovalSchemeByTeamId } from 'features/approvalSchemes/approvalScheme.slice'
 import { ApprovalScheme, ApprovalStep } from 'features/approvalSchemes/approvalScheme.model'
+import { 
+    ApprovalSchemeDraft, 
+    ApprovalStepDraft, 
+    addApprovalStepToDraft, 
+    getEmptyDraft, 
+    modifyStepThreshold 
+} from 'features/approvalSchemes/approvalSchemeDraft.model'
 import { User } from 'features/users/user.model'
 import { useParams } from "react-router-dom";
 import { Dictionary } from '@reduxjs/toolkit'
 import { RootState } from 'store';
 import { LoadingState } from 'features/asyncSlice.util'
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
 
 interface ApprovalStepViewData {
     id: number,
@@ -20,28 +29,34 @@ interface ApprovalStepViewData {
 
 const columns: Column[] = [
     { id: 'approverName', label: 'Approver name', minWidth: 170 },
-    { id: 'approvalRange', label: 'Approval range', minWidth: 200 },
+    { id: 'approveFrom', label: 'Approve From', minWidth: 200 },
+    { id: 'approveTo', label: 'Approve To', minWidth: 200 },
 ];
 
 interface RowData {
     id: string,
     approverName: string,
-    approveFrom: string,
-    approveTo: string,
+    approveFrom: string | React.ReactElement,
+    approveTo: string | React.ReactElement,
 }
 
-const approvalStepToApprovalStepViewData = 
+interface DraftActions {
+    addStepToDraft: () => void,
+    modifyThreshold: (threshold: number, stepIndex: number) => void
+}
+
+const approvalStepsToApprovalStepViewData = 
 (usersEntity: Dictionary<User>) =>
-(approvalSteps: ApprovalStep[]): ApprovalStepViewData[] => {
+(approvalSteps: ApprovalStepDraft[]): ApprovalStepViewData[] => {
 
     const reducer = (
         approvalStepsViewData: ApprovalStepViewData[], 
-        approvalStep: ApprovalStep, 
+        approvalStep: ApprovalStepDraft, 
         index: number, 
-        approvalSteps: ApprovalStep[]
+        approvalSteps: ApprovalStepDraft[]
     ): ApprovalStepViewData[]  => {
         
-        const approver = usersEntity[approvalStep.approverUserId];
+        const approver = approvalStep.approverUserId ? usersEntity[approvalStep.approverUserId] : undefined;
         const approverName = approver === undefined ? '' : `${approver.firstName} ${approver.lastName}`;
 
         const approvalStepViewDataForFirstElement = () => (
@@ -71,82 +86,56 @@ const approvalStepToApprovalStepViewData =
     return approvalSteps.reduce(reducer, [])
 };
 
-const prepareData = (approvalStepViewData: ApprovalStepViewData): RowData => (
+const prepareData = 
+(draftActions: DraftActions) => 
+(approvalStepViewData: ApprovalStepViewData): RowData => (
     {
         id: approvalStepViewData.id.toString(),
         approverName: approvalStepViewData.approverName,
         approveFrom: 'From: ' + approvalStepViewData.approveFrom,
-        approveTo: approvalStepViewData.approveTo === null ? ' - ' : 'to ' + approvalStepViewData.approveTo
+        approveTo:  approvalStepViewData.approveTo === null ? ' - ' 
+                    :   <> 
+                            <TextField
+                                id="standard-number"
+                                label="Up to"
+                                type="number"
+                                value={approvalStepViewData.approveTo}
+                                onChange={event => draftActions.modifyThreshold(+event.target.value, approvalStepViewData.id)}
+                            />
+                        </>
+                    
     }
 );
 
-//-------------------------------
-const addApprovalStep = (approvalSteps: ApprovalSteps[]): ApprovalSteps[] => {
-    const numberOfSteps = approvalSteps.length;
-    const lastStepIndex = approvalSteps.length - 1;
-    const approverUserId = null;
-    const newThreshold =    numberOfSteps === 0 ? null :
-                            numberOfSteps === 1 ? 0 :
-                            approvalSteps[numberOfSteps - 2].threshold
-    const addApprovalStepToEmptySteps = () => (
-        [{
-            approverUserId,
-            threshold: null,
-        }]
-    );
+function useEditApprovalScheme(approvalScheme: ApprovalSchemeDraft) {
+    // const approvalSteps = approvalScheme.approvalSteps;
+    const [draft, setDraft] = useState(approvalScheme);
 
-    const addApprovalStepToSingleStep = () => (
-        [
-            {
-                approverUserId,
-                threshold: 0,
-            },
-            ...approvalSteps
-        ]
-    );
-
-    const addApprovalStepMultipleSteps = () => (
-        [
-            ...take(lastStepIndex - 1, approvalSteps),
-            {
-                approverUserId,
-                threshold: approvalSteps[numberOfSteps - 2].threshold,
-            },
-            approvalSteps[lastStepIndex],
-        ]
-    );
-
-    return (
-            numberOfSteps === 0 ? addApprovalStepToEmptySteps() :
-            numberOfSteps === 1 ? addApprovalStepToSingleStep() :
-            addApprovalStepMultipleSteps()
-    );
+    const addStepToDraft = () => setDraft(addApprovalStepToDraft(draft));
+    const modifyThreshold = (threshold: number, stepIndex: number) => setDraft(modifyStepThreshold(threshold)(stepIndex)(draft))
+    return {
+        draft,
+        draftActions: {
+            addStepToDraft,
+            modifyThreshold,
+        }
+    };
 }
 
-function useEditApprovalScheme(approvalScheme: ApprovalScheme) {
-    const approvalSteps = approvalScheme.approvalSteps;
-    const [draft, setDraft] = useState(approvalSteps);
-  
-    return isOnline;
-  }
-
-export default () => {
+export default function ApprovalStepEditView() {
     const dispatch = useDispatch()
 
     const { teamId } = useParams();
-    const usersEntities = useSelector(selectUserEntities);
-    const approvalScheme = useSelector((state: RootState) => selectApprovalSchemeByTeamId(state, teamId));
-    const approvalSteps = approvalScheme?.approvalSteps ?? [];
-
-    const approvalStepsViewData = approvalStepToApprovalStepViewData(usersEntities)(approvalSteps);
-    const rows = approvalStepsViewData.map(prepareData);
-
-    
     const team = useSelector((state: RootState) => selectTeamById(state, teamId));
     const teamsLoadingStatus = useSelector(selectTeamsLoadingStatus);
-    
+
+    const usersEntities = useSelector(selectUserEntities);
     const usersLoadingStatus = useSelector(selectUsersLoadingStatus);
 
+    const maybeApprovalScheme = useSelector((state: RootState) => selectApprovalSchemeByTeamId(state, teamId));
+    const approvalScheme = maybeApprovalScheme ?? getEmptyDraft(teamId);
+    const approvalSteps = approvalScheme.approvalSteps;
+    
     useEffect(() => {
         if(teamsLoadingStatus === LoadingState.Idle){
             dispatch(fetchTeamsThunk());
@@ -159,6 +148,11 @@ export default () => {
         }
     }, [usersLoadingStatus, dispatch])
 
+    const {draft, draftActions} = useEditApprovalScheme(approvalScheme);
+    
+    const approvalStepsViewData = approvalStepsToApprovalStepViewData(usersEntities)(draft.approvalSteps);
+    const rows = approvalStepsViewData.map(prepareData(draftActions));
+
     return (
         <section>
             <h5>
@@ -166,6 +160,13 @@ export default () => {
                     approvalScheme === undefined ? 'No approval scheme created yet' : 'Below the approval scheme defined'
                 }
             </h5>
+            <Button 
+                variant="contained" 
+                color="primary"
+                onClick={draftActions.addStepToDraft}
+            >
+                Add step
+            </Button>
             <Table
                 rows = {rows}
                 columns = {columns}
